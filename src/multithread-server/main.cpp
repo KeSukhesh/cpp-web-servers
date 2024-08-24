@@ -35,10 +35,10 @@ void handle_connection(tcp::socket socket) {
         std::string filename;
         if (request_line == "GET / HTTP/1.1") {
             status_line = "HTTP/1.1 200 OK";
-            filename = "../util/hello.html";
+            filename = "hello.html";
         } else {
             status_line = "HTTP/1.1 404 NOT FOUND";
-            filename = "../util/404.html";
+            filename = "404.html";
         }
 
         std::string contents = read_file_to_string(filename);
