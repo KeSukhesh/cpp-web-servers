@@ -1,3 +1,5 @@
+// This C++ code is derived from the rust-lang book by Nicholas Matsakis and Aaron Turon.
+// Licensed under the MIT License. See LICENSE file for details.
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -14,7 +16,7 @@ std::string read_file_to_string(const std::string& filename) {
     }
 
     std::stringstream buffer;
-    buffer << file.rdbuf();  // Read the file contents into the stringstream
+    buffer << file.rdbuf();
     return buffer.str();
 }
 
@@ -22,20 +24,15 @@ void handle_connection(tcp::socket socket) {
     try {
         boost::asio::streambuf buffer;
         std::istream input_stream(&buffer);
-
-        // Read the request line
         boost::asio::read_until(socket, buffer, "\r\n");
         std::string request_line;
         std::getline(input_stream, request_line);
-
-        // Remove the trailing '\r' character if present
         if (!request_line.empty() && request_line.back() == '\r') {
             request_line.pop_back();
         }
 
         std::string status_line;
         std::string filename;
-        // Check if the request is for the root "/"
         if (request_line == "GET / HTTP/1.1") {
             status_line = "HTTP/1.1 200 OK";
             filename = "hello.html";
