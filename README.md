@@ -1,7 +1,6 @@
 # cpp-web-servers - A C++ Version of the [rust-lang web servers guide](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html)
 A simple guide to multithreaded web servers in C++!
 
-# C++ Version of [Original Rust Guide]
 This repository contains C++ code snippets that are derived from the [rust-lang web servers guide](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
 
 This repository is the result of me following along from this rust guide, but implementing the web servers in C++ instead. I thought I'd leave these markdown files up in case it they help anyone else.
