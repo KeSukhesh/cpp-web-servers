@@ -322,7 +322,7 @@ By making a new simple HTML5 file: 404.html
 and changing the `contents` of the response for any other request to `std::string contents = read_file_to_string("404.html");`. Our browser should now show the 404 html page when any other request is submitted.
 
 #### After a Touch of Refactoring
-Since there is some duplicate code, wee can clean up the `handle_connection()`, which now looks like:
+Since there is some duplicate code, we can clean up the `handle_connection()`, which now looks like:
 ```cpp
 void handle_connection(tcp::socket socket) {
     try {
@@ -356,6 +356,48 @@ void handle_connection(tcp::socket socket) {
     }
 }
 ```
-Awesome! We now have a simple web server in ~75 lines of C++ code that responds to one request with a page of content and responds to all other requests with a 404 response. Currently, our server runs in a single thread, which means it can only serve one request at a time. Head over to part 2 where we fix our server to handle multiple requests at once.
+Awesome! We now have a simple web server in ~75 lines of C++ code that responds to one request with a page of content and responds to all other requests with a 404 response. Currently, our server runs in a single thread, which means it can only serve one request at a time.
 
-(Link to next .md file)
+### Simulating a Slow Request in the Current Server Implementation
+We’ll look at how a slow-processing request can affect other requests made to our current server implementation. Listing 20-10 implements handling a request to /sleep with a simulated slow response that will cause the server to sleep for 5 seconds before responding. Make sure to `#include` _\<chrono\>_, _\<iomanip\>_, and _\<thread\>_.
+
+Filename: src/single-thread-server/main.cpp
+```cpp
+void handle_connection(tcp::socket socket) {
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now), "%Y-%m-%d %X");
+    std::cout << "Thread ID: " << std::this_thread::get_id() << " - Handling request at " << ss.str() << std::endl;
+    try {
+    ...
+    // --snip--
+        if (request_line == "GET / HTTP/1.1") {
+            status_line = "HTTP/1.1 200 OK";
+            filename = "../util/hello.html";
+        } else if (request_line == "GET /sleep HTTP/1.1") {
+            // Simulate a slow response by sleeping for 5 seconds
+            std::this_thread::sleep_for(std::chrono::seconds(5));
+            status_line = "HTTP/1.1 200 OK";
+            filename = "../util/hello.html";
+        } else {
+            status_line = "HTTP/1.1 404 NOT FOUND";
+            filename = "../util/404.html";
+        }
+    // --snip--
+    ...
+    }
+}
+```
+We first added a simple logger to our `handle_connection()` method, which gives us a visual confirmation of when different threads handle different connections. We then changed the if statement that checks for what the `request_line` is. Try matching a request to _/sleep_ and note how the server will sleep for 5 seconds before succesfully rendering the HTML page. You can see how primitive our server is: real libraries would handle the recognition of multiple requests in a much less verbose way!
+
+After compiling `main.cpp` with `g++ -std=c++20 -o main main.cpp -lboost_system -lpthread`, start the server using `./main`. Then open two browser windows: one for http://127.0.0.1:7878/ and the other for http://127.0.0.1:7878/sleep. If you enter the / URI a few times, as before, you’ll see it respond quickly. But if you enter /sleep and then load /, you’ll see that / waits until sleep has slept for its full 5 seconds before loading. If you find that 5 seconds is not long enough for you to notice anything, try changing the parameter to `std::chrono::seconds` to 10 or 15 seconds.
+
+For example, request the _/sleep_ page, and immediately request the normal page and note how the second request has to wait for the first to finish. I changed the sleep duration to 15 seconds to make this more noticeable. Here's the output from the logger:
+```
+KeSukhesh: ~/projects/cpp-web-servers/src/single-thread-server$ ./main
+Thread ID: 140130192308032 - Handling request at 2024-08-25 12:46:59
+Thread ID: 140130192308032 - Handling request at 2024-08-25 12:47:14
+```
+First, note that both requests use the same thread. Second, that the second request had to wait the 15 seconds before it could be responded to. Try this out for yourself, feel free to make multiple requests and play around with it. There are multiple techniques we could use to avoid requests backing up behind a slow request; the one we’ll implement is a thread pool. Head over to part 2 where we fix our server to handle multiple requests at once.
+
+[Turning Our Single-Threaded Web Server into a Multithreaded Server (in C++)](../multithread-server/multithread_server_guide.md)

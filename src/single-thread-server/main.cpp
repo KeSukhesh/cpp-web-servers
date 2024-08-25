@@ -6,6 +6,9 @@
 #include <sstream>
 #include <vector>
 #include <boost/asio.hpp>
+#include <chrono>
+#include <thread>
+#include <iomanip>
 
 using boost::asio::ip::tcp;
 
@@ -21,6 +24,10 @@ std::string read_file_to_string(const std::string& filename) {
 }
 
 void handle_connection(tcp::socket socket) {
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now), "%Y-%m-%d %X");
+    std::cout << "Thread ID: " << std::this_thread::get_id() << " - Handling request at " << ss.str() << std::endl;
     try {
         boost::asio::streambuf buffer;
         std::istream input_stream(&buffer);
@@ -34,6 +41,11 @@ void handle_connection(tcp::socket socket) {
         std::string status_line;
         std::string filename;
         if (request_line == "GET / HTTP/1.1") {
+            status_line = "HTTP/1.1 200 OK";
+            filename = "../util/hello.html";
+        } else if (request_line == "GET /sleep HTTP/1.1") {
+            // Simulate a slow response by sleeping for 15 seconds
+            std::this_thread::sleep_for(std::chrono::seconds(15));
             status_line = "HTTP/1.1 200 OK";
             filename = "../util/hello.html";
         } else {
