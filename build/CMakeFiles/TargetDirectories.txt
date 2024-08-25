@@ -1,4 +1,0 @@
-/home/kesukhesh/projects/cpp-web-servers/build/CMakeFiles/multi-server.dir
-/home/kesukhesh/projects/cpp-web-servers/build/CMakeFiles/single-server.dir
-/home/kesukhesh/projects/cpp-web-servers/build/CMakeFiles/edit_cache.dir
-/home/kesukhesh/projects/cpp-web-servers/build/CMakeFiles/rebuild_cache.dir
