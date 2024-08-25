@@ -434,7 +434,6 @@ CMakeFiles/multi-server.dir/src/multithread-server/main.cpp.o: /home/kesukhesh/p
   /usr/include/boost/cerrno.hpp \
   /usr/include/boost/checked_delete.hpp \
   /usr/include/boost/config.hpp \
-  /usr/include/boost/config/auto_link.hpp \
   /usr/include/boost/config/compiler/gcc.hpp \
   /usr/include/boost/config/detail/posix_features.hpp \
   /usr/include/boost/config/detail/select_compiler_config.hpp \
@@ -2242,8 +2241,6 @@ CMakeFiles/multi-server.dir/src/multithread-server/threadpool/ThreadPool.cpp.o: 
 
 /usr/include/boost/predef/os/bsd/open.h:
 
-/usr/include/boost/predef/os/bsd/net.h:
-
 /usr/include/boost/asio/executor_work_guard.hpp:
 
 /usr/include/boost/asio/traits/connect_free.hpp:
@@ -3602,8 +3599,6 @@ CMakeFiles/multi-server.dir/src/multithread-server/threadpool/ThreadPool.cpp.o: 
 
 /usr/include/boost/predef/architecture.h:
 
-/usr/include/boost/config/auto_link.hpp:
-
 /usr/include/boost/asio/detail/is_buffer_sequence.hpp:
 
 /usr/include/boost/config/compiler/gcc.hpp:
@@ -4075,3 +4070,5 @@ CMakeFiles/multi-server.dir/src/multithread-server/threadpool/ThreadPool.cpp.o: 
 /usr/include/boost/predef/library/std/vacpp.h:
 
 /usr/include/boost/predef/os/beos.h:
+
+/usr/include/boost/predef/os/bsd/net.h:

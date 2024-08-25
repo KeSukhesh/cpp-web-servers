@@ -266,7 +266,7 @@ This is a minimal HTML5 document with a heading and some text. To return this fr
 First, we changed the previous two lines to these:
 ```cpp
 // Read the HTML file into a string
-std::string contents = read_file_to_string("hello.html");
+std::string contents = read_file_to_string("../src/util/hello.html");
 
 // Create the HTTP response
 std::string status_line = "HTTP/1.1 200 OK";
@@ -324,7 +324,7 @@ void handle_connection(tcp::socket socket) {
         // Check if the request is for the root "/"
         if (request_line == "GET / HTTP/1.1") {
             std::string status_line = "HTTP/1.1 200 OK";
-            std::string contents = read_file_to_string("hello.html");
+            std::string contents = read_file_to_string("../src/util/hello.html");
             std::string length = std::to_string(contents.size());
            response = status_line + "\r\nContent-Length: " + length + "\r\n\r\n" + contents;
         } else {
@@ -363,7 +363,7 @@ By making a new simple HTML5 file: 404.html
     </body>
 </html>
 ```
-and changing the `contents` of the response for any other request to `std::string contents = read_file_to_string("404.html");`. Our browser should now show the 404 html page when any other request is submitted.
+and changing the `contents` of the response for any other request to `std::string contents = read_file_to_string("../src/util/404.html");`. Our browser should now show the 404 html page when any other request is submitted.
 
 #### After a Touch of Refactoring
 Since there is some duplicate code, we can clean up the `handle_connection()`, which now looks like:
@@ -385,10 +385,10 @@ void handle_connection(tcp::socket socket) {
         // Check if the request is for the root "/"
         if (request_line == "GET / HTTP/1.1") {
             status_line = "HTTP/1.1 200 OK";
-            filename = "hello.html";
+            filename = "../src/util/hello.html";
         } else {
             status_line = "HTTP/1.1 404 NOT FOUND";
-            filename = "404.html";
+            filename = "../src/util/404.html";
         }
         std::string contents = read_file_to_string(filename);
         std::string length = std::to_string(contents.size());
@@ -417,15 +417,15 @@ void handle_connection(tcp::socket socket) {
     // --snip--
         if (request_line == "GET / HTTP/1.1") {
             status_line = "HTTP/1.1 200 OK";
-            filename = "../util/hello.html";
+            filename = "../src/util/hello.html";
         } else if (request_line == "GET /sleep HTTP/1.1") {
             // Simulate a slow response by sleeping for 5 seconds
             std::this_thread::sleep_for(std::chrono::seconds(5));
             status_line = "HTTP/1.1 200 OK";
-            filename = "../util/hello.html";
+            filename = "../src/util/hello.html";
         } else {
             status_line = "HTTP/1.1 404 NOT FOUND";
-            filename = "../util/404.html";
+            filename = "../src/util/404.html";
         }
     // --snip--
     ...

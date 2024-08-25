@@ -435,7 +435,6 @@ CMakeFiles/multi-server.dir/src/multithread-server/main.cpp.o
  /usr/include/boost/cerrno.hpp
  /usr/include/boost/checked_delete.hpp
  /usr/include/boost/config.hpp
- /usr/include/boost/config/auto_link.hpp
  /usr/include/boost/config/compiler/gcc.hpp
  /usr/include/boost/config/detail/posix_features.hpp
  /usr/include/boost/config/detail/select_compiler_config.hpp
