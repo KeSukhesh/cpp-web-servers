@@ -1,5 +1,5 @@
-# cpp-web-servers - A C++ Version of the [rust-lang web servers guide](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html)
-A simple guide to multithreaded web servers in C++!
+# cpp-web-servers - A Simple Guide to Socket Programming in C++!
+A C++ Extension of the [rust-lang web servers guide!](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html)
 
 This repository contains C++ code snippets that are derived from the [rust-lang web servers guide](https://doc.rust-lang.org/book/ch20-00-final-project-a-web-server.html).
 
