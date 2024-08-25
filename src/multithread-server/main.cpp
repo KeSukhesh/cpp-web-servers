@@ -43,8 +43,8 @@ void handle_connection(tcp::socket socket) {
             status_line = "HTTP/1.1 200 OK";
             filename = "../src/util/hello.html";
         } else if (request_line == "GET /sleep HTTP/1.1") {
-            // Simulate a slow response by sleeping for 15 seconds
-            std::this_thread::sleep_for(std::chrono::seconds(15));
+            // Simulate a slow response by sleeping for 5 seconds
+            std::this_thread::sleep_for(std::chrono::seconds(5));
             status_line = "HTTP/1.1 200 OK";
             filename = "../src/util/hello.html";
         } else {

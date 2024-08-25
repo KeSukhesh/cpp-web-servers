@@ -80,7 +80,7 @@ target_link_libraries(single-server
     Threads::Threads
 )
 ```
-Compiling with this makefile is the equivalent of compiling our program with `g++ -std=c++20 -o main main.cpp -lboost_system -lpthread`. Create a new folder in our root directory called _build_ and `cd` into `build`. Now run `cmake ..`, you should see something similar to this output:
+Compiling with this makefile is the equivalent of compiling our program with `g++ -std=c++20 -o single-server main.cpp -lboost_system -lpthread`. Create a new folder in our root directory called _build_ and `cd` into `build`. Now run `cmake ..`, you should see something similar to this output:
 ```
 KeSukhesh: ~/projects/cpp-web-servers/build$ cmake ..
 -- Configuring done (0.0s)
@@ -94,8 +94,7 @@ KeSukhesh: ~/projects/cpp-web-servers/build$ make
 [ 66%] Linking CXX executable single-server
 [100%] Built target single-server
 ```
-
-Now, open up `127.0.0.1:7878` on your browser, you should be able to see a message that says "_127.0.0.1 didn't send any data - ERR_EMPTY_RESPONSE_". This might differ slightly depending on what browser you use. You should see "_Connection Established!_" printing in your terminal.
+You can now enter `./single-server` in your terminal to start the server! Now, open up `127.0.0.1:7878` on your browser, you should be able to see a message that says "_127.0.0.1 didn't send any data - ERR_EMPTY_RESPONSE_". This might differ slightly depending on what browser you use. You should see "_Connection Established!_" printing in your terminal.
 
 Sometimes, you’ll see multiple messages printed for one browser request; the reason might be that the browser is making a request for the page as well as a request for other resources, like the _favicon.ico_ icon that appears in the browser tab.
 
@@ -252,11 +251,11 @@ File: src/single-thread-server/hello.html
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Hello!</title>
+        <title>Hello, world!</title>
     </head>
     <body>
-        <h1>Hello!</h1>
-        <p>Hi from Rust</p>
+        <h1>Hello, world!</h1>
+        <p>Hi from C++.</p>
     </body>
 </html>
 ```
@@ -355,7 +354,7 @@ By making a new simple HTML5 file: 404.html
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Hello!</title>
+        <title>404 Not Found</title>
     </head>
     <body>
         <h1>Oops!</h1>
