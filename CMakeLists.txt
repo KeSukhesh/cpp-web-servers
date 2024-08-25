@@ -11,7 +11,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/multithread-server/threadpool)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system unit_test_framework)
 
 add_executable(multi-server
     src/multithread-server/main.cpp
@@ -29,5 +29,15 @@ add_executable(single-server
 
 target_link_libraries(single-server
     Boost::system
+    Threads::Threads
+)
+
+add_executable(unit-tests
+    test/unit-tests.cpp
+)
+
+target_link_libraries(unit-tests
+    Boost::system
+    Boost::unit_test_framework
     Threads::Threads
 )
