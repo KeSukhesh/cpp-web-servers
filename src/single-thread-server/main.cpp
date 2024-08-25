@@ -42,15 +42,15 @@ void handle_connection(tcp::socket socket) {
         std::string filename;
         if (request_line == "GET / HTTP/1.1") {
             status_line = "HTTP/1.1 200 OK";
-            filename = "../util/hello.html";
+            filename = "../src/util/hello.html";
         } else if (request_line == "GET /sleep HTTP/1.1") {
             // Simulate a slow response by sleeping for 15 seconds
             std::this_thread::sleep_for(std::chrono::seconds(15));
             status_line = "HTTP/1.1 200 OK";
-            filename = "../util/hello.html";
+            filename = "../src/util/hello.html";
         } else {
             status_line = "HTTP/1.1 404 NOT FOUND";
-            filename = "../util/404.html";
+            filename = "../src/util/404.html";
         }
 
         std::string contents = read_file_to_string(filename);

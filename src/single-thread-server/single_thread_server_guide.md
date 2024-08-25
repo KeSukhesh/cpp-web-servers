@@ -6,7 +6,7 @@ The two main protocols involved in web servers are _Hypertext Transfer Protocol
 TCP is the lower-level protocol that describes the details of how information gets from one server to another but doesn’t specify what that information is. HTTP builds on top of TCP by defining the contents of the requests and responses. It’s technically possible to use HTTP with other protocols, but in the vast majority of cases, HTTP sends its data over TCP. We’ll work with the raw bytes of TCP and HTTP requests and responses.
 
 #### Listening to the TCP Connection
-File: src/single-thread-server/main.cpp
+*New* File: _src/single-thread-server/main.cpp_
 ```cpp
 #include <iostream>
 #include <thread>
@@ -46,13 +46,56 @@ int main() {
 ```
 Notes about this code:
 - `boost/asio.hpp` is a networking library, where `boost::asio` is used to handle TCP connections in C++. It provides a similar level of abstraction as Rust's `TcpListener`.
-- (socket handling) `tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 7878));` creates a TCP listener on `127.0.0.1:7878`.
-- (socket handling) `acceptor.accept(socket);` waits for an incoming connection and accepts it.
-- (multithreading) `threads.emplace_back(std::thread(handle_client, std::move(socket)));` spawns a new thread to handle each client connection.
+- `tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), 7878));` creates a TCP listener on `127.0.0.1:7878`.
+- `acceptor.accept(socket);` waits for an incoming connection and accepts it.
+- `threads.emplace_back(std::thread(handle_client, std::move(socket)));` spawns a new thread to handle each client connection.
 
 In this snippet, we can listen for TCP connections at the address `127.0.0.1:7878`. In the address, the section before the colon is an IP address representing your computer, and `7878` is the port. We use this port because HTTP isn't normally accepted on this port so our server is unlikely to conflict with any other web server you might have running on your machine.
 
-After compiling `main.cpp` with `g++ -std=c++20 -o main main.cpp -lboost_system -lpthread`, and opening up `127.0.0.1:7878` on your browser, you should be able to see a message that says "_127.0.0.1 didn't send any data - ERR_EMPTY_RESPONSE_". This might differ slightly depending on what browser you use. You should see "_Connection Established!_" printing in your terminal.
+#### Setting up our CMake and Makefiles
+
+Create a new `CMakeLists.txt` file in the root directory:
+
+*New* File: _CmakeLists.txt_
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(cpp-web-servers)
+
+if(POLICY CMP0167)
+    cmake_policy(SET CMP0167 OLD)
+endif()
+
+set(CMAKE_CXX_STANDARD 20)
+
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system)
+
+add_executable(single-server
+    src/single-thread-server/main.cpp
+)
+
+target_link_libraries(single-server
+    Boost::system
+    Threads::Threads
+)
+```
+Compiling with this makefile is the equivalent of compiling our program with `g++ -std=c++20 -o main main.cpp -lboost_system -lpthread`. Create a new folder in our root directory called _build_ and `cd` into `build`. Now run `cmake ..`, you should see something similar to this output:
+```
+KeSukhesh: ~/projects/cpp-web-servers/build$ cmake ..
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/kesukhesh/projects/cpp-web-servers/build
+```
+Then run `make`, and you should see something similar to:
+```
+KeSukhesh: ~/projects/cpp-web-servers/build$ make
+[ 33%] Building CXX object CMakeFiles/single-thread-server.dir/src/single-thread-server/main.cpp.o
+[ 66%] Linking CXX executable single-server
+[100%] Built target single-server
+```
+
+Now, open up `127.0.0.1:7878` on your browser, you should be able to see a message that says "_127.0.0.1 didn't send any data - ERR_EMPTY_RESPONSE_". This might differ slightly depending on what browser you use. You should see "_Connection Established!_" printing in your terminal.
 
 Sometimes, you’ll see multiple messages printed for one browser request; the reason might be that the browser is making a request for the page as well as a request for other resources, like the _favicon.ico_ icon that appears in the browser tab.
 
@@ -61,7 +104,7 @@ It could also be that the browser is trying to connect to the server multiple ti
 #### Reading the Request
 Let’s implement the functionality to read the request from the browser! To separate the concerns of first getting a connection and then taking some action with the connection, we’ll start a new function for processing connections. In this new `handle_connection()` function, we’ll read data from the TCP stream and print it so we can see the data being sent from the browser.
 
-File: src/single-thread-server/main.cpp
+File: _src/single-thread-server/main.cpp_
 ```cpp
 #include <iostream>
 #include <string>
@@ -128,9 +171,10 @@ Notes about this code:
 - `boost::asio::read_until(socket, buffer, "\r\n");` reads the data from the socket until it encounters a newline. We then use `std::getline` to extract each line and add it to the `http_request` vector.
 - The browser signals the end of an HTTP request by sending two newline characters in a row, so to get one request from the stream, we take lines until we get a line that is the empty string. Once we’ve collected the lines into the vector, we’re printing them out using pretty debug formatting so we can take a look at the instructions the web browser is sending to our server.
 - We then print the collected lines to the console.
+
 When we run this code, we get the following in our terminal:
 ```
-KeSukhesh: ~/projects/cpp-web-servers/src/single-thread-server$ ./main
+KeSukhesh: ~/projects/cpp-web-servers/src/single-thread-server$ ./single-server
 Request:
 GET / HTTP/1.1
 Host: localhost:7878
@@ -173,8 +217,8 @@ Now that we know what the browser is asking for, let’s send back some data!
 #### Writing a Response
 We’re going to implement sending data in response to a client request. Responses have the following format:
 ```
-HTTP-Version Status-Code Reason-Phrase CRLF 
-headers CRLF 
+HTTP-Version Status-Code Reason-Phrase CRLF
+headers CRLF
 message-body
 ```
 
@@ -194,7 +238,7 @@ std::string response = "HTTP/1.1 200 OK\r\n\r\n";
 boost::asio::write(socket, boost::asio::buffer(response));
 ```
 Notes about this code:
-- `boost::asio::write(socket, boost::asio::buffer(response));` sends the response back to the client using the socket. 
+- `boost::asio::write(socket, boost::asio::buffer(response));` sends the response back to the client using the socket.
 - The `boost::asio::buffer(response)` converts the string to a buffer that can be sent over the network.
 
 With these changes, let’s run our code and make a request. We’re no longer printing any data to the terminal, so we won’t see any output. When you load _127.0.0.1:7878_ in a web browser, you should get a blank page instead of an error. You’ve just hand-coded receiving an HTTP request and sending a response!
@@ -390,11 +434,11 @@ void handle_connection(tcp::socket socket) {
 ```
 We first added a simple logger to our `handle_connection()` method, which gives us a visual confirmation of when different threads handle different connections. We then changed the if statement that checks for what the `request_line` is. Try matching a request to _/sleep_ and note how the server will sleep for 5 seconds before succesfully rendering the HTML page. You can see how primitive our server is: real libraries would handle the recognition of multiple requests in a much less verbose way!
 
-After compiling `main.cpp` with `g++ -std=c++20 -o main main.cpp -lboost_system -lpthread`, start the server using `./main`. Then open two browser windows: one for http://127.0.0.1:7878/ and the other for http://127.0.0.1:7878/sleep. If you enter the / URI a few times, as before, you’ll see it respond quickly. But if you enter /sleep and then load /, you’ll see that / waits until sleep has slept for its full 5 seconds before loading. If you find that 5 seconds is not long enough for you to notice anything, try changing the parameter to `std::chrono::seconds` to 10 or 15 seconds.
+After running `cmake ..` and `make` inside _/build/**_, start the server using `./single-server`. Then open two browser windows: one for http://127.0.0.1:7878/ and the other for http://127.0.0.1:7878/sleep. If you enter the / URI a few times, as before, you’ll see it respond quickly. But if you enter /sleep and then load /, you’ll see that / waits until sleep has slept for its full 5 seconds before loading. If you find that 5 seconds is not long enough for you to notice anything, try changing the parameter to `std::chrono::seconds` to 10 or 15 seconds.
 
 For example, request the _/sleep_ page, and immediately request the normal page and note how the second request has to wait for the first to finish. I changed the sleep duration to 15 seconds to make this more noticeable. Here's the output from the logger:
 ```
-KeSukhesh: ~/projects/cpp-web-servers/src/single-thread-server$ ./main
+KeSukhesh: ~/projects/cpp-web-servers/src/single-thread-server$ ./single-server
 Thread ID: 140130192308032 - Handling request at 2024-08-25 12:46:59
 Thread ID: 140130192308032 - Handling request at 2024-08-25 12:47:14
 ```

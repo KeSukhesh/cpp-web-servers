@@ -1,0 +1,1 @@
+/usr/bin/c++ "CMakeFiles/single-server.dir/src/single-thread-server/main.cpp.o" -o single-server  /usr/lib/x86_64-linux-gnu/libboost_system.so.1.74.0
